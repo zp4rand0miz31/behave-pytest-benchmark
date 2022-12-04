@@ -1,0 +1,6 @@
+# our habits on creating venv 
+.venv 
+# py cache & co
+*cache*
+# no json reports
+*json 
