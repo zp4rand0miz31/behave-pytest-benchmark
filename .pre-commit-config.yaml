@@ -24,13 +24,15 @@ repos:
       - id: check-yaml              # Checks for valid YAML
       - id: mixed-line-ending       # Consistent LF or CRLF
 
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v2.1.1
-    hooks:
-      - id: conventional-pre-commit
-        stages: [commit-msg]
-        args: [] # optional: list of Conventional Commits types to allow e.g. [feat, fix, ci, chore, test]
-      
+  # - repo: https://github.com/compilerla/conventional-pre-commit
+  #   rev: v2.1.1
+  #   hooks:
+  #     - id: conventional-pre-commit
+  #       # stages: [ "commit-msg" ]
+  #       stages: [commit-msg]
+  #       # args: [feat,fix,ci,chore,test] # optional: list of Conventional Commits types to allow e.g. [feat, fix, ci, chore, test]
+  #       args: []
+
   # Perform black reformatting for us
   - repo: https://github.com/psf/black
     rev: 23.1.0
@@ -68,10 +70,10 @@ repos:
     # Ruff version.
     rev: 'v0.0.258'
     hooks:
-      # config is taken from the pyproject.toml file 
+      # config is taken from the pyproject.toml file
     - id: ruff
-      
-      
+
+
       # not enabling auto fix now, not sure what it can fix
       #args: [--fix, --exit-non-zero-on-fix, --ignore, "W292,W293,W291" ]
 
