@@ -1,8 +1,8 @@
-# python-behave vs pytest-bdd feature benchmark
+# python-behave vs pytest-bdd vs pytest-eucalyptus feature benchmark
 
-As an engineering manager, I need to choose the best framework to my company in order to leverage an easy to use, easy to extend and robust framework for BDD tests.
+I need to choose the best framework for my company in order to leverage an easy to use, easy to extend and robust framework for BDD tests.
 
-This repository aims at sharing my discoveries while working on improving my existing test base, in the direction of using the BDD approach (Behavior Driver Development).
+This repository aims at sharing my discoveries while working on improving my existing test code base, in the direction of using the BDD approach (Behavior Driver Development).
 
 Many frameworks exists for several languages, but I focus on Python here.
 
@@ -13,6 +13,8 @@ I compare several frameworks of the python eco-system that allows BDD:
  - pytest-eucalyptus
 
 Disclaimer: the sole purpose of this repository is to keep track of our benchmark steps. Some points are probably not solved yet, and our analysis may be partial or wrong. We only intend to share our discoveries, that might help other to get an idea of each framework.
+
+Note: we quickly stopped studying `pytest-bdd` because it's too "pytest" centric and not enough "Gherkin" centric; however, this is a nice framework.
 
 ## What is important in a test framework ?
 
@@ -27,7 +29,7 @@ Some key points for a daily usage:
 3. test selection capabilities
 4. code scalability and coherence
 
-To create this benchmark, we developed a series of tests with both `behave` and `pytest-eucalyptus`.
+To create this benchmark, we developed a series of tests with both `behave` and `pytest-eucalyptus`. We did not spend much time implementing a real test suite, it's only demonstration code.
 
 # Results
 
@@ -54,25 +56,6 @@ Behave provides quite a bunch of options, the most useful are:
   - `behave --stop` :  stops on first fail (useful to dig into problems when they happens)
   - `behave --summary` : provides a text report at the end of the tests. Note pytest-bdd does this "by default", but it's more friendly with behave.
 
-
-
-## 3. Test selection capabilities
-
-### 3.a Tags
-
-Both pytest-bdd and python-behave provide tags as it's part of the Gherkin language.
-
-
-
-## 4. Code scalability and coherence
-
-
-
-### 4.a test suites
-
-You might want to split your tests in big categories (related or not related to features). One might think of splitting tests into performance, non-regression and user-conformance testing strategies.
-
-Another way to
 
 # Some general remarks when compariing
 
@@ -130,6 +113,8 @@ Feature: feature X
 
 ```
 
+Both framework do support this syntax.
+
 ## Tag support
 
 Gherkin specifies that we can add some tags at several level :
@@ -138,8 +123,6 @@ Gherkin specifies that we can add some tags at several level :
 - Scenario / Scenario Outline
 
 Both framework do offer this an allows filtering tests on such tags.
-
-## Examples tables
 
 ## Steps arguments
 
@@ -273,13 +256,13 @@ I need to be able to filter a subset of tests. BDD tests can be filtered either 
 One key feature here is to be able to filter on the *Outlines*, including the parameterized data. The parameterized data is the data found in the table used to derived multiple *Scenario* from a *Scenario Outline*.
 
 - With `pytest-eucalyptus`, filtering works natively on scenario outline, without any completion. However, `pytest-eucalyptus` needs to be patched to use the data from the `Examples` tables. Test this with `pytest -k xantia -v`, that selects a scenario outline from the `parameterized_test.feature`.
-* with `behave`: Same as `eucalyptus`. We did not patch `behave` yet as of now.
+* with `behave`: Works : `behave  test_suite_complete/   -i outline   -x  -n xantia` will run the feature containing `outline` and matching `xantia`
 
 Tests suites can be defined easily in both framework : a simple directory is enough. `eucalyptus` requires this directory to be a module (add `__init__.py`).
 
 ### Test order management (dependency between tests)
 
-* With *behave*: TODO
+* With *behave*: Seems to follow the alpha-numerical ordering using feature file names.
 
 * With *eucalyptus*: the execution of the tests follows the alpha-numerical ordering, both at the testsuite level and feature (Gherkin file) level. This means that you can order your testsuite by prefixing with a sequence number the name of the testsuites and feature files. This is a bit old school but works.
 
@@ -292,7 +275,7 @@ Passing parameter to your testsuite is really important, as you need to control 
 * With *behave*: `behave -D param1=value1`. The `param1` value is then found into the `context.config.userdata` dictionary, which can be used in all the tests.
   If you want an specific configuration file to your tests, you can implement a file loading logic into the `before_all` hook that will load values from a file.
 
-* With *pytest-bdd*: `pytest -o param1=value1` is natively supported. It overrides the `pytest.ini` file. [https://docs.pytest.org/en/7.1.x/example/simple.html#basic-patterns-and-examples](Pytest documentation) describes some way to reach. You can also add specific option via the `pytest_addoption` hook. See [using eucalyptus](/using-eucalyptus/README.md#define-new-global-or-specific-parameters)
+* With *pytest-bdd*: `pytest -o param1=value1` is natively supported. It overrides the `pytest.ini` file. [Pytest documentation](https://docs.pytest.org/en/7.1.x/example/simple.html#basic-patterns-and-examples) describes some way to reach. You can also add specific option via the `pytest_addoption` hook. See [using eucalyptus](/using-eucalyptus/README.md#define-new-global-or-specific-parameters)
 
 
 ## Test debugging
@@ -317,7 +300,7 @@ We need to easily catch the source of the error, both in Python code and Gherkin
   - pytest-bdd:
   - pytest-eucalyptus: if error in Gherkin file, the line number inside the gherkin file is not reported in the pytest summary
   -  behave: not : "HOOK ERROR " when running behave. sometimes looses some print() and logging.info() ??
-
+TODO : we need to file a bugreport against this behavior
 
 ## Reports
 
@@ -364,33 +347,31 @@ Legend:
   - 'Bug' : feature is present, but does not work well or at all
   - empty: not evaluated yet
 
-| Requirement                        | behave         | pytest-eucalyptus    | pytest-bdd      |
-| ---------------------------------- | -------------- | -------------------- | --------------- |
-| Gherkin / Scenario outlines        |                |                      |
-| Gherkin / Tag                      | Yes (+)        | Yes (++)             |
-| dependency injection               |                |                      |                 |
-| Define global parameters           |                | via pytest_configure |                 |
-| Filter by tag                      | yes            | yes                  |                 |
-| Filter by feature/scenario name    | yes            | yes                  |                 |
-| Filter by full outline             | no  but -x ?   | yes/no but patched   |                 |
-| skip unimplemented tests           | BUG            |                      |                 |
-| Conception / step catalog steps    | Yes            | partial              |                 |
-| Conception / step reuse steps      | TODO           | Yes                  |                 |
-| Conception / Invalid Gherkin       | Too permissive | Yes very strict      |                 |
-| Conception / Gherkin lint          | ~              | No                   |                 |
-| Conception / Generate code         | Yes            | Patching wip         |                 |
-| Conception / Dependency management | No             | No                   | Maybe? to check |
-
-| Conception / code robustness        | TODO                                | TODO                 |                 |
-| Conception / type completion in IDE | TODO                                | TODO                 |                 |
-| Test debugging / Gherkin centric    | Yes (++)                            | Yes (+)              | No              |
-| test debugging / visualize run      | TODO                                | TODO                 |                 |
-| Test run / test suites              | Bug                                 | Yes                  |                 |
-| Test run / Test order management    | TODO                                | Yes                  |                 |
-| Test run / logging                  | Nice (+++), buggy in "live logging" | (++)                 |                 |
-| Test run / log2file + console       | file incomplete, console incomplete |                      |                 |
-| Test run / log2junit + console      | Yes, live logging broken            | (+++                 |                 |
-| Documentation                       | yes (+++)                           |
+| Requirement                        | behave                              | pytest-eucalyptus    | pytest-bdd      |
+| ---------------------------------- | ----------------------------------- | -------------------- | --------------- |
+| Gherkin / Scenario outlines        |                                     |                      |                 |
+| Gherkin / Tag                      | Yes (+)                             | Yes (++)             |                 |
+| dependency injection               | No                                  | No                   | Yes             |
+| Define global parameters           | Yes                                 | via pytest_configure |                 |
+| Filter by tag                      | yes                                 | yes                  |                 |
+| Filter by feature/scenario name    | yes                                 | yes                  |                 |
+| Filter by full outline             | no  but -x ?                        | yes/no but patched   |                 |
+| skip unimplemented tests           | BUG                                 |                      |                 |
+| Conception / step catalog steps    | Yes                                 | partial              |                 |
+| Conception / step reuse steps      | Yes                                 | Yes                  |                 |
+| Conception / Invalid Gherkin       | Too permissive                      | Yes very strict      |                 |
+| Conception / Gherkin lint          | ~                                   | No                   |                 |
+| Conception / Generate code         | Yes                                 | Patching wip         |                 |
+| Conception / Dependency management | No                                  | No                   | Maybe? to check |
+| Conception / code robustness       | TODO                                | TODO                 |                 |
+| Test debugging / Gherkin centric   | Yes (++)                            | Yes (+)              | No              |
+| test debugging / visualize run     | TODO                                | TODO                 |                 |
+| Test run / test suites             | Bug                                 | Yes                  |                 |
+| Test run / Test order management   | TODO                                | Yes                  |                 |
+| Test run / logging                 | Nice (+++), buggy in "live logging" | (++)                 |                 |
+| Test run / log2file + console      | file incomplete, console incomplete |                      |                 |
+| Test run / log2junit + console     | Yes, live logging broken            | (+++                 |                 |
+| Documentation                      | yes (+++)                           |
 
 ## List of improvements we performed
 
@@ -419,5 +400,11 @@ W
 
 My *personal* conclusion below. Please note that it only engages myself, and it might not seem objective in some way.
 
- * `python-behave` seems more mature in terms of featuresand ergonomy. However, some small and minor bugs seems to be
+ * `python-behave` seems more mature in terms of features and ergonomy. However, some small and minor bugs seems to exists on the logging part.
  * `pytest-eucalyptus` is built upon `pytest`, and profit of many features coming from it (report management for instance). The project may seem less mature on a feature point of view, but seems more easy to improve and tweak.
+
+
+The main difference I notice at this point is that :
+
+ - `behave` is more permissive regarding the Gherkin syntax, which can be a feature or a problem. I would prefer to have a stricter parser.
+ -
