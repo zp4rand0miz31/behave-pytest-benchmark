@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "using-eucalyptus"
+version = "0.1.0"
+description = ""
+authors = ["zp4rand0miz31 <zp4rand0miz31@zp4rand0miz31.com>"]
+readme = "README.md"
+packages = [{include = "using_eucalyptus"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+# for hacking into a local copy of eucalyptus
+# pytest-eucalyptus = {path = "../../pytest-eucalyptus", develop=true}
+pytest-eucalyptus = {path = "../../../workspace/test-frameworks/pytest-eucalyptus", develop=true}
+ansicolor = "^0.3.2"
+pytest = "^7.2.2"
+mypy = "^1.1.1"
+black = "^23.3.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+mypy = "^1.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
