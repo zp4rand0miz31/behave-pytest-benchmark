@@ -132,28 +132,46 @@ Feature: feature X
 
 ## Tag support
 
+Gherkin specifies that we can add some tags at several level :
+
+- Feature
+- Scenario / Scenario Outline
+
+Both framework do offer this an allows filtering tests on such tags.
+
+## Examples tables
+
+## Steps arguments
+
+[Gherkin allows specifying](https://cucumber.io/docs/gherkin/reference/#step-arguments) data below a step. This can be multi-lines.
+
+For instance, the following Gherkin is valid :
+
+```gherkin
+
+Scenario: A user enter the system
+  Given a user
+  """
+  This is the description of the user : he's brown-eyed, tall and thin.
+  """
+
+```
+
+Using a  data table is also possible :
 
 
-- G1: I need a framework that implements the most modern Gherkin specification, at least for :
-    - examples
-    - scenario outline
-    - tag support (or fixtures or test filtering)
-    - test pre-requisite
+```gherkin
 
-    - multiline data in steps definitions:
-      - behave, eucalyptus: ok
-      - pytest bdd: ko
+Scenario: A user enter the system
+  Given a list of users
+  | age| name   |
+  | 12 | Anton  |
+  | 65 | Marcel |
+  | 35 | Izri   |
 
+```
 
-
-- G2 I need to handle Scenario Outlines
-  - "Examples tables":
-    - behave, eucalyptus: ok
-    - pytestbdd : ko, need some patches to get it working (succeeded in doing so)
-- G3 I need to handle Examples
-- G4 I need to handle regexp
-
-
+We need to ensure how to access such data in the boiler plate code.
 
 
 ## Test Case Management
@@ -226,7 +244,6 @@ def my_step(context):
  * With `behave`: when a step is not implemented, behave proposes some code to copy/paste in the module of your choice. We improved a bit the generation to get friendly function names for the proposed code. This is a nice feature of behave.
  * With `eucalyptus`: when a step is not implemented, the `pytest collection` works properly but we get a failing test. The workaround is to define a "@wip" tag and do not run these tests via `pytest -m "not wip"`.
 
-
 ### Dependency management / context chaining
 
 One particular problem when coding BDD tests is that a scenario is an assembly of many steps. Each "Given" step in Gherkin is a function that provides some more context that is used later by a step.
@@ -239,7 +256,7 @@ One idea to add some robustness is to use the "dependency injection", as done by
 
 Nor `behave` nor `pytest-eucalyptus` provides any solution to our knowledge.
 
-Note: `pytest-bdd` does implement a mix of fixtures & BDD
+Note: `pytest-bdd` does implement a mix of fixtures & BDD.
 
 ### Code robustness / type completion in my IDE
 
@@ -343,36 +360,36 @@ Legend:
   - 'No' : requirement is not fulfilled
   - '~' : may need extra work to get it working
   - 'Partial' : partially fulfilled
-  - 'Yes, Patched': we managed to workaround this in our code or in the framework very easily
+  - 'No/Yes but Patched': we managed to workaround this in our code or in the framework very easily
   - 'Bug' : feature is present, but does not work well or at all
   - empty: not evaluated yet
 
-| Requirement                         | behave                              | pytest-eucalyptus | pytest-bdd      |
-| ----------------------------------- | ----------------------------------- | ----------------- | --------------- |
-| Gherkin / Scenario outlines         |                                     |                   |
-| Gherkin / Tag                       | Yes (+)                             | Yes (++)          |
-| dependency injection                |                                     |                   |                 |
-| Type completion in VSCode           |                                     |                   |                 |
-| Define global parameters            |                                     |                   |                 |
-| Filter by tag                       |                                     |                   |                 |
-| Filter by feature/scenario name     |                                     |                   |                 |
-| Filter by full outline              |                                     |                   |                 |
-| skip unimplemented tests            | BUG                                 |                   |                 |
-| Conception / step catalog steps     | Yes                                 | partial           |                 |
-| Conception / step reuse steps       | TODO                                | Yes               |                 |
-| Conception / Invalid Gherkin        | Too permissive                      | Yes very strict   |                 |
-| Conception / Gherkin lint           | ~                                   | No                |                 |
-| Conception / Generate code          | Yes                                 | Patching wip      |                 |
-| Conception / Dependency management  | No                                  | No                | Maybe? to check |
-| Conception / code robustness        | TODO                                | TODO              |                 |
-| Conception / type completion in IDE | TODO                                | TODO              |                 |
-| Test debugging / Gherkin centric    | Yes (++)                            | Yes (+)           | No              |
-| test debugging / visualize run      | TODO                                | TODO              |                 |
-| Test run / test suites              | Bug                                 | Yes               |                 |
-| Test run / Test order management    | TODO                                | Yes               |                 |
-| Test run / logging                  | Nice (+++), buggy in "live logging" | (++)              |                 |
-| Test run / log2file + console       | file incomplete, console incomplete |                   |                 |
-| Test run / log2junit + console      | Yes, live logging broken            | (+++              |                 |
+| Requirement                        | behave         | pytest-eucalyptus    | pytest-bdd      |
+| ---------------------------------- | -------------- | -------------------- | --------------- |
+| Gherkin / Scenario outlines        |                |                      |
+| Gherkin / Tag                      | Yes (+)        | Yes (++)             |
+| dependency injection               |                |                      |                 |
+| Define global parameters           |                | via pytest_configure |                 |
+| Filter by tag                      | yes            | yes                  |                 |
+| Filter by feature/scenario name    | yes            | yes                  |                 |
+| Filter by full outline             | no  but -x ?   | yes/no but patched   |                 |
+| skip unimplemented tests           | BUG            |                      |                 |
+| Conception / step catalog steps    | Yes            | partial              |                 |
+| Conception / step reuse steps      | TODO           | Yes                  |                 |
+| Conception / Invalid Gherkin       | Too permissive | Yes very strict      |                 |
+| Conception / Gherkin lint          | ~              | No                   |                 |
+| Conception / Generate code         | Yes            | Patching wip         |                 |
+| Conception / Dependency management | No             | No                   | Maybe? to check |
+
+| Conception / code robustness        | TODO                                | TODO                 |                 |
+| Conception / type completion in IDE | TODO                                | TODO                 |                 |
+| Test debugging / Gherkin centric    | Yes (++)                            | Yes (+)              | No              |
+| test debugging / visualize run      | TODO                                | TODO                 |                 |
+| Test run / test suites              | Bug                                 | Yes                  |                 |
+| Test run / Test order management    | TODO                                | Yes                  |                 |
+| Test run / logging                  | Nice (+++), buggy in "live logging" | (++)                 |                 |
+| Test run / log2file + console       | file incomplete, console incomplete |                      |                 |
+| Test run / log2junit + console      | Yes, live logging broken            | (+++                 |                 |
 | Documentation                       | yes (+++)                           |
 
 ## List of improvements we performed
@@ -402,5 +419,5 @@ W
 
 My *personal* conclusion below. Please note that it only engages myself, and it might not seem objective in some way.
 
- * `python-behave` seems more mature in terms of features. However, the project does not seem that solid in terms of features and cadence.
+ * `python-behave` seems more mature in terms of featuresand ergonomy. However, some small and minor bugs seems to be
  * `pytest-eucalyptus` is built upon `pytest`, and profit of many features coming from it (report management for instance). The project may seem less mature on a feature point of view, but seems more easy to improve and tweak.
