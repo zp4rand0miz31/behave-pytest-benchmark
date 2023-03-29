@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "using-python-behave"
+version = "0.1.0"
+description = ""
+authors = ["zp4rand0miz31 <zp4rand0miz31@zp4rand0miz31.com>"]
+readme = "README.md"
+packages = [{include = "using_python_behave"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+# for hacking into a local copy of eucalyptus
+# pytest-eucalyptus = {path = "../../behave", develop=true}
+behave = "^1.2.6"
+ansicolor = "^0.3.2"
+mypy = "^1.1.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
