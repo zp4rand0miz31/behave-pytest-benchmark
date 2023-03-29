@@ -11,3 +11,17 @@ Feature: Gherkin / Parameterized scenario outline
       | var1   | var2             |
       | xantia | john doe         |
       | fuego  | marcelo gonzatti |
+
+  Scenario Outline: This is a scenario outline with variable <car_name>
+
+    Given a driver
+    When the driver drives
+      """ This is multiline data
+      """
+    Then the car moves
+
+
+    Examples:
+      | car_name | driver           |
+      | xantia   | john doe         |
+      | fuego    | marcelo gonzatti |
